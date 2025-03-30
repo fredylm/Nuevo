@@ -3,6 +3,7 @@ let usuarioActual = null;
 let juegoActivo = false;
 let respuestaCorrecta = 0;
 let puntaje = 0;
+let subnivel = 1;
 let errores = [];
 let total = 0;
 let tiempoRestante = 0;
@@ -86,13 +87,19 @@ async function iniciarJuego() {
   if (operaciones.length === 0) return alert("Selecciona al menos una operación");
 
   const dificultad = document.getElementById("dificultad").value;
-  const rango = dificultad === "easy" ? 10 : dificultad === "medium" ? 20 : 50;
+  const nivelMap = { easy: 9, medium: 20, hard: 50, expert: 100 };
+const maxRango = nivelMap[dificultad] || 10;
+const subrango = Math.floor((maxRango / 5) * subnivel);
+const rango = Math.max(1, subrango);
 
   juegoActivo = true;
   puntaje = 0;
   errores = [];
   total = 0;
   document.getElementById("aciertos").textContent = "0";
+  subnivel = 1;
+  document.getElementById("subnivel-texto").textContent = "1 de 5";
+  document.getElementById("barra-subnivel").value = 1;
   document.getElementById("modal-juego").style.display = "block";
 
   siguienteOperacion(operaciones, rango);
@@ -141,6 +148,11 @@ function responder() {
   if (r === respuestaCorrecta) {
     puntaje++;
     document.getElementById("aciertos").textContent = puntaje;
+if (puntaje > 0 && puntaje % 5 === 0 && subnivel < 5) {
+  subnivel++;
+  document.getElementById("subnivel-texto").textContent = subnivel + " de 5";
+  document.getElementById("barra-subnivel").value = subnivel;
+}
     document.getElementById("feedback").textContent = "¡Correcto!";
   } else {
     errores.push({ pregunta, respuestaCorrecta, respuestaUsuario: r });
